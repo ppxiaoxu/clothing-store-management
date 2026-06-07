@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS purchase_record (
+    id             BIGINT        NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    supplier_id    BIGINT        NOT NULL                COMMENT '进货商ID',
+    product_id     BIGINT        NOT NULL                COMMENT '商品ID',
+    sku_id         BIGINT        NOT NULL                COMMENT '商品规格ID',
+    quantity       INT           NOT NULL                COMMENT '进货数量',
+    purchase_price DECIMAL(10,2) NOT NULL DEFAULT 0.00   COMMENT '进货单价',
+    total_amount   DECIMAL(10,2) NOT NULL DEFAULT 0.00   COMMENT '进货总金额',
+    purchase_time  DATETIME      NOT NULL                COMMENT '进货时间',
+    remark         VARCHAR(255)  DEFAULT ''              COMMENT '备注',
+    create_time    DATETIME      DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time    DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (id),
+    INDEX idx_purchase_supplier_id (supplier_id),
+    INDEX idx_purchase_product_id (product_id),
+    INDEX idx_purchase_sku_id (sku_id),
+    INDEX idx_purchase_time (purchase_time),
+    CONSTRAINT fk_purchase_supplier FOREIGN KEY (supplier_id) REFERENCES supplier(id),
+    CONSTRAINT fk_purchase_product FOREIGN KEY (product_id) REFERENCES product(id),
+    CONSTRAINT fk_purchase_sku FOREIGN KEY (sku_id) REFERENCES sku(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='进货记录表';

@@ -1,0 +1,244 @@
+{
+  "info": {
+    "name": "童装门店库存管理系统",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ],
+  "item": [
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "新增分类",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/categories",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"上衣\",\n    \"parentId\": 0,\n    \"sortOrder\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "删除分类",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/categories/1"
+          }
+        },
+        {
+          "name": "修改分类",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/categories/1",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"下装\",\n    \"parentId\": 0,\n    \"sortOrder\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "根据ID查询",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/categories/1"
+          }
+        },
+        {
+          "name": "分页查询",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/categories?pageNum=1&pageSize=10&name=上衣",
+              "query": [
+                {"key": "pageNum", "value": "1"},
+                {"key": "pageSize", "value": "10"},
+                {"key": "name", "value": "上衣", "disabled": true}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Supplier",
+      "item": [
+        {
+          "name": "新增供应商",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/suppliers",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"杭州童装厂\",\n    \"contactPerson\": \"张三\",\n    \"phone\": \"13800138000\",\n    \"address\": \"杭州市西湖区\",\n    \"remark\": \"长期合作\"\n}"
+            }
+          }
+        },
+        {
+          "name": "删除供应商",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/suppliers/1"
+          }
+        },
+        {
+          "name": "修改供应商",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/suppliers/1",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"杭州童装厂\",\n    \"contactPerson\": \"李四\",\n    \"phone\": \"13900139000\",\n    \"address\": \"杭州市滨江区\",\n    \"remark\": \"\"\n}"
+            }
+          }
+        },
+        {
+          "name": "根据ID查询",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/suppliers/1"
+          }
+        },
+        {
+          "name": "分页查询",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/suppliers?pageNum=1&pageSize=10",
+              "query": [
+                {"key": "pageNum", "value": "1"},
+                {"key": "pageSize", "value": "10"},
+                {"key": "name", "value": "", "disabled": true}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Product",
+      "item": [
+        {
+          "name": "新增商品",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/products",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"卡通T恤\",\n    \"productCode\": \"TX-001\",\n    \"categoryId\": 1,\n    \"supplierId\": 1,\n    \"gender\": 0,\n    \"suitableAge\": \"3-5岁\",\n    \"season\": \"夏\"\n}"
+            }
+          }
+        },
+        {
+          "name": "删除商品",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/products/1"
+          }
+        },
+        {
+          "name": "修改商品",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/products/1",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"卡通T恤夏款\",\n    \"productCode\": \"TX-001\",\n    \"categoryId\": 1,\n    \"supplierId\": 1,\n    \"gender\": 0,\n    \"suitableAge\": \"3-5岁\",\n    \"season\": \"夏\"\n}"
+            }
+          }
+        },
+        {
+          "name": "根据ID查询",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/products/1"
+          }
+        },
+        {
+          "name": "分页查询",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/products?pageNum=1&pageSize=10",
+              "query": [
+                {"key": "pageNum", "value": "1"},
+                {"key": "pageSize", "value": "10"},
+                {"key": "name", "value": "", "disabled": true},
+                {"key": "productCode", "value": "", "disabled": true}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "SKU",
+      "item": [
+        {
+          "name": "新增SKU",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/skus",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"productId\": 1,\n    \"color\": \"红色\",\n    \"size\": \"110\",\n    \"stock\": 50,\n    \"costPrice\": 25.00,\n    \"salePrice\": 59.90\n}"
+            }
+          }
+        },
+        {
+          "name": "删除SKU",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/skus/1"
+          }
+        },
+        {
+          "name": "修改SKU",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/skus/1",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"productId\": 1,\n    \"color\": \"蓝色\",\n    \"size\": \"120\",\n    \"stock\": 30,\n    \"costPrice\": 25.00,\n    \"salePrice\": 59.90\n}"
+            }
+          }
+        },
+        {
+          "name": "根据ID查询",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/skus/1"
+          }
+        },
+        {
+          "name": "分页查询",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/skus?pageNum=1&pageSize=10",
+              "query": [
+                {"key": "pageNum", "value": "1"},
+                {"key": "pageSize", "value": "10"},
+                {"key": "color", "value": "", "disabled": true},
+                {"key": "size", "value": "", "disabled": true}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
