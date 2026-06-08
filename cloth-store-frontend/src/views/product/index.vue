@@ -96,7 +96,7 @@
           <el-input v-model="form.name" maxlength="50" show-word-limit />
         </el-form-item>
         <el-form-item label="货号" prop="productCode">
-          <el-input v-model="form.productCode" maxlength="50" show-word-limit />
+          <el-input v-model="form.productCode" maxlength="50" show-word-limit placeholder="选填，不填也可以" />
         </el-form-item>
         <el-row :gutter="16">
           <el-col :span="12">
@@ -168,7 +168,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitForm">保存</el-button>
+          <el-button type="primary" :loading="saving" @click="submitForm">保存</el-button>
         </div>
       </template>
     </el-dialog>
@@ -184,6 +184,7 @@ import { getSupplierList } from '@/api/supplier'
 import { getToken } from '@/utils/auth'
 
 const loading = ref(false)
+const saving = ref(false)
 const tableData = ref([])
 const total = ref(0)
 const dialogVisible = ref(false)
@@ -274,10 +275,15 @@ function resetForm() {
 async function submitForm() {
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid) return
-  if (isEdit.value) { await updateProduct(form.id, form); ElMessage.success('修改成功') }
-  else { await createProduct(form); ElMessage.success('新增成功') }
-  dialogVisible.value = false
-  fetchData()
+  saving.value = true
+  try {
+    if (isEdit.value) { await updateProduct(form.id, form); ElMessage.success('修改成功') }
+    else { await createProduct(form); ElMessage.success('新增成功') }
+    dialogVisible.value = false
+    fetchData()
+  } finally {
+    saving.value = false
+  }
 }
 
 function beforeImageUpload(file) {

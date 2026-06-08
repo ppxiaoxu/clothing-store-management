@@ -76,6 +76,13 @@ html, body, #app {
 /* ========== 表单 ========== */
 .el-form-item__label { font-size: 16px; }
 .el-form-item { margin-bottom: 18px; }
+.el-form-item__error {
+  position: static;
+  padding-top: 6px;
+  line-height: 1.35;
+  font-size: 14px;
+  word-break: break-word;
+}
 
 /* ========== 菜单 ========== */
 .el-menu-item {
@@ -103,11 +110,138 @@ html, body, #app {
 
 /* ========== 移动端适配 ========== */
 @media screen and (max-width: 768px) {
-  html, body, #app { font-size: 15px; }
-  .el-button { font-size: 15px !important; min-height: 44px; padding: 12px 16px; }
+  html, body, #app {
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+    font-size: 16px;
+  }
+  .el-button { font-size: 16px !important; min-height: 44px; padding: 12px 16px; }
+  .el-button--small { min-height: 40px; font-size: 15px !important; }
+  .el-input__inner, .el-input__wrapper,
+  .el-select .el-input__inner,
+  .el-input-number,
+  .el-input-number .el-input__wrapper {
+    min-height: 44px;
+    font-size: 16px !important;
+  }
+  .el-select, .el-input, .el-input-number, .el-date-editor {
+    width: 100% !important;
+  }
   .el-table { font-size: 14px; }
   .el-table th.el-table__cell { font-size: 14px; padding: 10px 0; }
   .el-table td.el-table__cell { font-size: 14px; padding: 8px 0; }
-  .el-dialog { width: 95% !important; }
-  .el-form--inline .el-form-item { display: block; margin-right: 0; }
+  .el-dialog {
+    width: 90vw !important;
+    max-width: 90vw;
+    margin-top: 5vh !important;
+    border-radius: 8px;
+  }
+  .el-dialog__header {
+    padding: 16px 16px 8px;
+  }
+  .el-dialog__title {
+    font-size: 18px;
+  }
+  .el-dialog__body {
+    max-height: calc(88vh - 120px);
+    overflow-y: auto;
+    padding: 12px 16px 76px;
+  }
+  .el-dialog__footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: #ffffff;
+    border-top: 1px solid #eef2f7;
+  }
+  .el-dialog__footer .el-button {
+    flex: 1;
+  }
+  .el-dialog__footer .dialog-footer,
+  .el-dialog__footer > span {
+    display: flex;
+    gap: 10px;
+  }
+  .el-form-item {
+    margin-bottom: 20px;
+  }
+  .el-form-item__label {
+    height: auto;
+    line-height: 1.35;
+    margin-bottom: 6px;
+    font-size: 16px;
+  }
+  .el-form--inline .el-form-item {
+    display: block;
+    margin-right: 0;
+    width: 100%;
+  }
+  .el-card__body {
+    padding: 12px;
+  }
+  .desktop-table {
+    display: none !important;
+  }
+  .mobile-list {
+    display: grid !important;
+    gap: 12px;
+  }
+  .mobile-record-card {
+    padding: 14px;
+    background: #ffffff;
+    border: 1px solid #e5eaf3;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  }
+  .mobile-card-title {
+    margin: 0 0 10px;
+    color: #0f172a;
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.35;
+  }
+  .mobile-card-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    color: #334155;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .mobile-card-row span:first-child {
+    flex: 0 0 auto;
+    color: #64748b;
+  }
+  .mobile-card-row strong,
+  .mobile-card-row span:last-child {
+    min-width: 0;
+    text-align: right;
+    word-break: break-word;
+  }
+  .mobile-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #eef2f7;
+  }
+  .mobile-card-actions .el-button {
+    flex: 1;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .el-pagination {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+@media screen and (min-width: 769px) {
+  .mobile-list {
+    display: none !important;
+  }
 }

@@ -117,7 +117,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitForm">保存</el-button>
+          <el-button type="primary" :loading="saving" @click="submitForm">保存</el-button>
         </div>
       </template>
     </el-dialog>
@@ -137,7 +137,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="adjustDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitAdjust">提交</el-button>
+          <el-button type="primary" :loading="adjustSaving" @click="submitAdjust">提交</el-button>
         </div>
       </template>
     </el-dialog>
@@ -151,6 +151,8 @@ import { getSkuList, createSku, updateSku, deleteSku, adjustSkuStock } from '@/a
 import { getProductList } from '@/api/product'
 
 const loading = ref(false)
+const saving = ref(false)
+const adjustSaving = ref(false)
 const tableData = ref([])
 const total = ref(0)
 const dialogVisible = ref(false)
@@ -272,23 +274,33 @@ function resetAdjustForm() {
 async function submitForm() {
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid) return
-  if (isEdit.value) { await updateSku(form.id, form); ElMessage.success('修改成功') }
-  else { await createSku(form); ElMessage.success('新增成功') }
-  dialogVisible.value = false
-  fetchData()
+  saving.value = true
+  try {
+    if (isEdit.value) { await updateSku(form.id, form); ElMessage.success('修改成功') }
+    else { await createSku(form); ElMessage.success('新增成功') }
+    dialogVisible.value = false
+    fetchData()
+  } finally {
+    saving.value = false
+  }
 }
 
 async function submitAdjust() {
   const valid = await adjustFormRef.value.validate().catch(() => false)
   if (!valid) return
-  await adjustSkuStock({
-    skuId: adjustForm.skuId,
-    newStock: adjustForm.newStock,
-    reason: adjustForm.reason
-  })
-  ElMessage.success('库存调整成功')
-  adjustDialogVisible.value = false
-  fetchData()
+  adjustSaving.value = true
+  try {
+    await adjustSkuStock({
+      skuId: adjustForm.skuId,
+      newStock: adjustForm.newStock,
+      reason: adjustForm.reason
+    })
+    ElMessage.success('库存调整成功')
+    adjustDialogVisible.value = false
+    fetchData()
+  } finally {
+    adjustSaving.value = false
+  }
 }
 
 function handleDelete(row) {

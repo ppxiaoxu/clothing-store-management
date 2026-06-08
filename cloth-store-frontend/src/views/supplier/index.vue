@@ -18,7 +18,7 @@
       <div class="toolbar">
         <el-button type="primary" @click="openAdd">新增进货商</el-button>
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap desktop-table">
         <el-table :data="tableData" stripe border v-loading="loading">
           <el-table-column prop="id" label="编号" width="90" />
           <el-table-column prop="name" label="进货商名称" min-width="160" />
@@ -33,6 +33,18 @@
             </template>
           </el-table-column>
         </el-table>
+      </div>
+      <div class="mobile-list" v-loading="loading">
+        <div v-for="row in tableData" :key="row.id" class="mobile-record-card">
+          <h3 class="mobile-card-title">{{ row.name }}</h3>
+          <div class="mobile-card-row"><span>联系人</span><strong>{{ row.contactPerson || '-' }}</strong></div>
+          <div class="mobile-card-row"><span>手机号</span><strong>{{ row.phone || '-' }}</strong></div>
+          <div class="mobile-card-row"><span>地址</span><strong>{{ row.address || '-' }}</strong></div>
+          <div class="mobile-card-actions">
+            <el-button type="primary" @click="openEdit(row)">编辑</el-button>
+            <el-button type="danger" @click="handleDelete(row)">删除</el-button>
+          </div>
+        </div>
       </div>
       <el-pagination
         v-model:current-page="searchForm.pageNum"
@@ -49,24 +61,26 @@
     <el-dialog :title="dialogTitle" v-model="dialogVisible" width="560px" @close="resetForm">
       <el-form ref="formRef" class="supplier-form" :model="form" :rules="rules" label-width="130px">
         <el-form-item label="进货商名称" prop="name">
-          <el-input v-model="form.name" placeholder="例如：杭州童装厂" />
+          <el-input v-model="form.name" maxlength="50" show-word-limit placeholder="例如：杭州童装厂" />
         </el-form-item>
-        <el-form-item label="联系人">
-          <el-input v-model="form.contactPerson" placeholder="联系人姓名" />
+        <el-form-item label="联系人" prop="contactPerson">
+          <el-input v-model="form.contactPerson" maxlength="50" show-word-limit placeholder="联系人姓名" />
         </el-form-item>
-        <el-form-item label="电话">
-          <el-input v-model="form.phone" placeholder="手机或座机号" />
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="form.phone" maxlength="11" placeholder="请输入11位手机号" />
         </el-form-item>
-        <el-form-item label="地址">
-          <el-input v-model="form.address" placeholder="省、市、区、详细地址" />
+        <el-form-item label="地址" prop="address">
+          <el-input v-model="form.address" maxlength="100" show-word-limit placeholder="省、市、区、详细地址" />
         </el-form-item>
-        <el-form-item label="备注">
-          <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="其他说明" />
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" type="textarea" :rows="2" maxlength="255" show-word-limit placeholder="其他说明" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitForm">保存</el-button>
+        <div class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" :loading="saving" @click="submitForm">保存</el-button>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -78,6 +92,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getSupplierList, createSupplier, updateSupplier, deleteSupplier } from '@/api/supplier'
 
 const loading = ref(false)
+const saving = ref(false)
 const tableData = ref([])
 const total = ref(0)
 const dialogVisible = ref(false)
@@ -87,7 +102,23 @@ const formRef = ref(null)
 
 const searchForm = reactive({ pageNum: 1, pageSize: 10, name: '' })
 const form = reactive({ name: '', contactPerson: '', phone: '', address: '', remark: '' })
-const rules = { name: [{ required: true, message: '请输入进货商名称', trigger: 'blur' }] }
+const mobilePattern = /^1[3-9]\d{9}$/
+function validateOptionalMobile(rule, value, callback) {
+  if (!value || mobilePattern.test(value)) callback()
+  else callback(new Error('请输入正确的11位手机号'))
+}
+const rules = {
+  name: [
+    { required: true, message: '请输入进货商名称', trigger: 'blur' },
+    { max: 50, message: '进货商名称长度必须为1~50个字符', trigger: 'blur' }
+  ],
+  contactPerson: [{ max: 50, message: '联系人不能超过50个字符', trigger: 'blur' }],
+  phone: [
+    { validator: validateOptionalMobile, trigger: 'blur' }
+  ],
+  address: [{ max: 100, message: '地址不能超过100个字符', trigger: 'blur' }],
+  remark: [{ max: 255, message: '备注不能超过255个字符', trigger: 'blur' }]
+}
 
 async function fetchData() {
   loading.value = true
@@ -120,10 +151,15 @@ function resetForm() {
 async function submitForm() {
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid) return
-  if (isEdit.value) { await updateSupplier(form.id, form); ElMessage.success('修改成功') }
-  else { await createSupplier(form); ElMessage.success('新增成功') }
-  dialogVisible.value = false
-  fetchData()
+  saving.value = true
+  try {
+    if (isEdit.value) { await updateSupplier(form.id, form); ElMessage.success('修改成功') }
+    else { await createSupplier(form); ElMessage.success('新增成功') }
+    dialogVisible.value = false
+    fetchData()
+  } finally {
+    saving.value = false
+  }
 }
 
 function handleDelete(row) {
@@ -143,5 +179,16 @@ onMounted(() => fetchData())
 .table-wrap { overflow-x: auto; }
 .supplier-form :deep(.el-form-item__label) {
   white-space: nowrap;
+}
+
+@media screen and (max-width: 768px) {
+  .page {
+    max-width: none;
+    width: 100%;
+  }
+
+  .toolbar .el-button {
+    width: 100%;
+  }
 }
 </style>

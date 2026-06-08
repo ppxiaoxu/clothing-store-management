@@ -12,6 +12,10 @@ export function getCurrentUser() {
   return request.get('/auth/me')
 }
 
+export function updateProfile(data) {
+  return request.put('/auth/profile', data)
+}
+
 export function changePassword(data) {
   return request.put('/auth/change-password', data)
 }

@@ -75,7 +75,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitForm">保存</el-button>
+          <el-button type="primary" :loading="saving" @click="submitForm">保存</el-button>
         </div>
       </template>
     </el-dialog>
@@ -88,6 +88,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getCategoryList, createCategory, updateCategory, deleteCategory } from '@/api/category'
 
 const loading = ref(false)
+const saving = ref(false)
 const tableData = ref([])
 const total = ref(0)
 const dialogVisible = ref(false)
@@ -156,10 +157,15 @@ function resetForm() {
 async function submitForm() {
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid) return
-  if (isEdit.value) { await updateCategory(form.id, form); ElMessage.success('修改成功') }
-  else { await createCategory(form); ElMessage.success('新增成功') }
-  dialogVisible.value = false
-  fetchData()
+  saving.value = true
+  try {
+    if (isEdit.value) { await updateCategory(form.id, form); ElMessage.success('修改成功') }
+    else { await createCategory(form); ElMessage.success('新增成功') }
+    dialogVisible.value = false
+    fetchData()
+  } finally {
+    saving.value = false
+  }
 }
 
 function handleDelete(row) {

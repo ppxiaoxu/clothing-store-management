@@ -405,7 +405,7 @@ onUnmounted(() => {
 <style scoped>
 .layout-root {
   min-height: 100vh;
-  background: #f6f8fb;
+  background: #f5f7fb;
   color: #152033;
 }
 
@@ -422,11 +422,9 @@ onUnmounted(() => {
   z-index: 100;
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(circle at 15% 5%, rgba(59, 130, 246, 0.24), transparent 24%),
-    linear-gradient(180deg, #09213f 0%, #061c37 48%, #062646 100%);
+  background: #0f172a;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 16px 0 35px rgba(15, 23, 42, 0.08);
+  box-shadow: 10px 0 24px rgba(15, 23, 42, 0.08);
   overflow-y: auto;
   transition: transform 0.25s ease;
 }
@@ -435,8 +433,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 92px;
-  padding: 20px 14px 16px;
+  min-height: 82px;
+  padding: 16px 14px 14px;
 }
 
 .brand-icon {
@@ -445,11 +443,11 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 50px;
-  height: 50px;
-  background: #fff7f8;
+  width: 44px;
+  height: 44px;
+  background: #eff6ff;
   border-radius: 8px;
-  box-shadow: 0 10px 22px rgba(251, 113, 133, 0.28);
+  box-shadow: none;
 }
 
 .store-roof {
@@ -499,7 +497,7 @@ onUnmounted(() => {
 
 .brand-title {
   color: #ffffff;
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 800;
   line-height: 1.35;
 }
@@ -517,13 +515,13 @@ onUnmounted(() => {
 }
 
 .nav-menu :deep(.el-menu-item) {
-  height: 52px;
-  margin: 8px 0;
+  height: 46px;
+  margin: 4px 0;
   padding: 0 18px !important;
   border-radius: 8px;
-  font-size: 16px !important;
+  font-size: 15px !important;
   font-weight: 700;
-  line-height: 52px;
+  line-height: 46px;
   transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -533,8 +531,8 @@ onUnmounted(() => {
 }
 
 .nav-menu :deep(.el-menu-item.is-active) {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.32);
+  background: #2563eb;
+  box-shadow: none;
 }
 
 .nav-menu :deep(.el-icon) {
@@ -554,10 +552,8 @@ onUnmounted(() => {
   padding: 16px;
   color: #ffffff;
   text-align: left;
-  background:
-    radial-gradient(circle at 12% 10%, rgba(147, 197, 253, 0.28), transparent 34%),
-    linear-gradient(135deg, rgba(37, 99, 235, 0.92), rgba(14, 116, 144, 0.84));
-  border: 1px solid rgba(191, 219, 254, 0.32);
+  background: rgba(30, 41, 59, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 8px;
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.18);
   cursor: pointer;
@@ -565,7 +561,7 @@ onUnmounted(() => {
 }
 
 .help-box:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: rgba(219, 234, 254, 0.58);
   box-shadow: 0 16px 32px rgba(15, 23, 42, 0.24);
 }
@@ -612,9 +608,9 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 82px;
+  height: 74px;
   padding: 0 24px;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.96);
   border-bottom: 1px solid #e8edf5;
   box-shadow: 0 2px 18px rgba(15, 23, 42, 0.04);
 }
@@ -637,7 +633,7 @@ onUnmounted(() => {
 .top-left h1 {
   margin: 0;
   color: #0f1d37;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 850;
   line-height: 1.2;
 }
@@ -705,10 +701,9 @@ onUnmounted(() => {
 }
 
 .content {
-  min-height: calc(100vh - 82px);
+  min-height: calc(100vh - 74px);
   padding: 24px;
-  background:
-    linear-gradient(180deg, #f6f8fb 0%, #f8fafc 42%, #ffffff 100%);
+  background: #f5f7fb;
 }
 
 .page-footer {
