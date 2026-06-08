@@ -23,11 +23,6 @@
           登录
         </el-button>
       </el-form>
-
-      <div class="auth-switch">
-        <span>还没有账号?</span>
-        <RouterLink to="/register">去注册</RouterLink>
-      </div>
     </section>
   </div>
 </template>
@@ -169,21 +164,6 @@ async function submit() {
 .submit-button {
   width: 100%;
   margin-top: 8px;
-}
-
-.auth-switch {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
-  color: #64748b;
-  font-size: 14px;
-}
-
-.auth-switch a {
-  color: #2563eb;
-  font-weight: 700;
-  text-decoration: none;
 }
 
 @media screen and (max-width: 480px) {

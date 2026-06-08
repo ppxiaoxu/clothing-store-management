@@ -11,3 +11,7 @@ export function login(data) {
 export function getCurrentUser() {
   return request.get('/auth/me')
 }
+
+export function changePassword(data) {
+  return request.put('/auth/change-password', data)
+}

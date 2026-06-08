@@ -75,7 +75,8 @@
             </button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                <el-dropdown-item command="changePassword">修改密码</el-dropdown-item>
+                <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -91,13 +92,31 @@
       </el-main>
     </el-container>
   </el-container>
+
+  <el-dialog title="修改密码" v-model="passwordDialogVisible" width="460px" @close="resetPasswordForm">
+    <el-form ref="passwordFormRef" :model="passwordForm" :rules="passwordRules" label-width="100px" class="password-form">
+      <el-form-item label="旧密码" prop="oldPassword">
+        <el-input v-model="passwordForm.oldPassword" type="password" show-password placeholder="请输入旧密码" />
+      </el-form-item>
+      <el-form-item label="新密码" prop="newPassword">
+        <el-input v-model="passwordForm.newPassword" type="password" show-password placeholder="请输入新密码" />
+      </el-form-item>
+      <el-form-item label="确认密码" prop="confirmPassword">
+        <el-input v-model="passwordForm.confirmPassword" type="password" show-password placeholder="请再次输入新密码" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="passwordDialogVisible = false">取消</el-button>
+      <el-button type="primary" :loading="passwordSaving" @click="submitChangePassword">保存</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getCurrentUser } from '@/api/auth'
+import { changePassword, getCurrentUser } from '@/api/auth'
 import { clearAuth, getStoredUser, setStoredUser } from '@/utils/auth'
 
 const route = useRoute()
@@ -105,7 +124,33 @@ const router = useRouter()
 const menuVisible = ref(false)
 const now = ref(new Date())
 const user = ref(getStoredUser())
+const passwordDialogVisible = ref(false)
+const passwordSaving = ref(false)
+const passwordFormRef = ref(null)
 let timer = null
+
+const passwordForm = reactive({
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+function validateConfirmPassword(rule, value, callback) {
+  if (value !== passwordForm.newPassword) {
+    callback(new Error('两次输入的新密码不一致'))
+    return
+  }
+  callback()
+}
+
+const passwordRules = {
+  oldPassword: [{ required: true, message: '请输入旧密码', trigger: 'blur' }],
+  newPassword: [{ required: true, message: '请输入新密码', trigger: 'blur' }],
+  confirmPassword: [
+    { required: true, message: '请确认新密码', trigger: 'blur' },
+    { validator: validateConfirmPassword, trigger: 'blur' }
+  ]
+}
 
 const menuItems = [
   { path: '/dashboard', label: '工作台', icon: 'HomeFilled' },
@@ -148,11 +193,42 @@ async function refreshUser() {
 }
 
 function handleUserCommand(command) {
-  if (command === 'logout') {
-    clearAuth()
-    ElMessage.success('已退出登录')
-    router.push('/login')
+  if (command === 'changePassword') {
+    passwordDialogVisible.value = true
+    return
   }
+  if (command === 'logout') {
+    logout('已退出登录')
+  }
+}
+
+function resetPasswordForm() {
+  passwordFormRef.value?.clearValidate()
+  Object.assign(passwordForm, {
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+}
+
+async function submitChangePassword() {
+  const valid = await passwordFormRef.value.validate().catch(() => false)
+  if (!valid) return
+
+  passwordSaving.value = true
+  try {
+    await changePassword(passwordForm)
+    passwordDialogVisible.value = false
+    logout('密码修改成功，请重新登录')
+  } finally {
+    passwordSaving.value = false
+  }
+}
+
+function logout(message) {
+  clearAuth()
+  ElMessage.success(message)
+  router.push('/login')
 }
 
 onMounted(() => {
@@ -463,6 +539,10 @@ onUnmounted(() => {
   margin: 18px auto 0;
   color: #7b8798;
   font-size: 13px;
+}
+
+.password-form :deep(.el-form-item__label) {
+  white-space: nowrap;
 }
 
 @media screen and (max-width: 1024px) {
