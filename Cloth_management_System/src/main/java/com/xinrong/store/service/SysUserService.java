@@ -1,6 +1,7 @@
 package com.xinrong.store.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xinrong.store.dto.ChangePasswordRequest;
 import com.xinrong.store.dto.LoginRequest;
 import com.xinrong.store.dto.RegisterRequest;
 import com.xinrong.store.entity.SysUser;
@@ -14,4 +15,6 @@ public interface SysUserService extends IService<SysUser> {
     LoginResponseVO login(LoginRequest request);
 
     LoginUserVO getLoginUser(Long userId);
+
+    void changePassword(Long userId, ChangePasswordRequest request);
 }

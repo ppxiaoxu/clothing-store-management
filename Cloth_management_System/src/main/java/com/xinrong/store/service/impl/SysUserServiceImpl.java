@@ -2,6 +2,7 @@ package com.xinrong.store.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xinrong.store.dto.ChangePasswordRequest;
 import com.xinrong.store.dto.LoginRequest;
 import com.xinrong.store.dto.RegisterRequest;
 import com.xinrong.store.entity.SysUser;
@@ -68,6 +69,26 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new IllegalArgumentException("用户不存在");
         }
         return LoginUserVO.from(user);
+    }
+
+    @Override
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        SysUser user = this.getById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("旧密码不正确");
+        }
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("两次输入的新密码不一致");
+        }
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("新密码不能与旧密码相同");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        this.updateById(user);
     }
 
     private boolean existsByUsername(String username) {

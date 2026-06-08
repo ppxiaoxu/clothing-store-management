@@ -1,6 +1,7 @@
 package com.xinrong.store.controller;
 
 import com.xinrong.store.common.Result;
+import com.xinrong.store.dto.ChangePasswordRequest;
 import com.xinrong.store.dto.LoginRequest;
 import com.xinrong.store.dto.RegisterRequest;
 import com.xinrong.store.service.SysUserService;
@@ -9,6 +10,7 @@ import com.xinrong.store.vo.LoginUserVO;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,5 +39,12 @@ public class AuthController {
     @GetMapping("/me")
     public Result<LoginUserVO> me(@RequestAttribute("userId") Long userId) {
         return Result.success(sysUserService.getLoginUser(userId));
+    }
+
+    @PutMapping("/change-password")
+    public Result<Void> changePassword(@RequestAttribute("userId") Long userId,
+                                       @Valid @RequestBody ChangePasswordRequest request) {
+        sysUserService.changePassword(userId, request);
+        return Result.success();
     }
 }
