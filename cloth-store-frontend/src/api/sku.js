@@ -19,3 +19,7 @@ export function updateSku(id, data) {
 export function deleteSku(id) {
   return request.delete(`/skus/${id}`)
 }
+
+export function adjustSkuStock(data) {
+  return request.put('/stock/adjust', data)
+}

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import Layout from '@/layout/index.vue'
-import { isLoggedIn } from '@/utils/auth'
+import { getStoredUser, isLoggedIn } from '@/utils/auth'
 
 const routes = [
   {
@@ -50,10 +51,34 @@ const routes = [
         meta: { title: '库存管理', subtitle: '查看库存数量，及时发现低库存商品', requiresAuth: true }
       },
       {
+        path: 'stock-record',
+        name: 'StockRecord',
+        component: () => import('@/views/StockRecord.vue'),
+        meta: { title: '库存流水', subtitle: '查看每一次库存变动的来源和前后数量', requiresAuth: true }
+      },
+      {
         path: 'purchase-record',
         name: 'PurchaseRecord',
         component: () => import('@/views/PurchaseRecord.vue'),
         meta: { title: '进货记录', subtitle: '记录每次进货，自动同步库存数量', requiresAuth: true }
+      },
+      {
+        path: 'sale-record',
+        name: 'SaleRecord',
+        component: () => import('@/views/SaleRecord.vue'),
+        meta: { title: '销售记录', subtitle: '记录每次销售，自动扣减库存数量', requiresAuth: true }
+      },
+      {
+        path: 'sales-statistics',
+        name: 'SalesStatistics',
+        component: () => import('@/views/SalesStatistics.vue'),
+        meta: { title: '销售统计', subtitle: '查看销售额、收款状态和每日销售表现', requiresAuth: true }
+      },
+      {
+        path: 'user-manage',
+        name: 'UserManage',
+        component: () => import('@/views/user-manage/index.vue'),
+        meta: { title: '用户管理', subtitle: '创建账号、维护角色和启用状态', requiresAuth: true, adminOnly: true }
       }
     ]
   }
@@ -68,6 +93,10 @@ router.beforeEach((to) => {
   const loggedIn = isLoggedIn()
   if (to.meta.requiresAuth && !loggedIn) {
     return '/login'
+  }
+  if (to.meta.adminOnly && getStoredUser()?.role !== 'ADMIN') {
+    ElMessage.warning('无权限访问用户管理')
+    return '/dashboard'
   }
   if (to.meta.guestOnly && loggedIn) {
     return '/dashboard'

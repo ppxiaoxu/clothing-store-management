@@ -11,10 +11,10 @@
         <el-form-item label="进货日期">
           <el-date-picker
             v-model="dateRange"
-            type="datetimerange"
-            start-placeholder="开始时间"
-            end-placeholder="结束时间"
-            value-format="YYYY-MM-DD[T]HH:mm:ss"
+            type="daterange"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="YYYY-MM-DD"
             range-separator="至"
           />
         </el-form-item>
@@ -30,7 +30,7 @@
         <el-button type="primary" @click="openAdd">新增进货记录</el-button>
       </div>
 
-      <div class="table-wrap">
+      <div class="table-wrap desktop-table">
         <el-table :data="tableData" stripe border v-loading="loading">
           <el-table-column prop="purchaseTime" label="进货时间" min-width="170">
             <template #default="{ row }">{{ formatDateTime(row.purchaseTime) }}</template>
@@ -46,6 +46,9 @@
           <el-table-column prop="totalAmount" label="进货总金额" width="130">
             <template #default="{ row }">{{ formatMoney(row.totalAmount) }}</template>
           </el-table-column>
+          <el-table-column prop="creatorName" label="操作人" width="100">
+            <template #default="{ row }">{{ row.creatorName || '-' }}</template>
+          </el-table-column>
           <el-table-column prop="remark" label="备注" min-width="140" show-overflow-tooltip />
           <el-table-column label="操作" width="190" fixed="right">
             <template #default="{ row }">
@@ -54,6 +57,23 @@
             </template>
           </el-table-column>
         </el-table>
+      </div>
+      <div class="mobile-list" v-loading="loading">
+        <div v-for="row in tableData" :key="row.id" class="mobile-record-card">
+          <h3 class="mobile-card-title">{{ row.productName || '未命名商品' }}</h3>
+          <div class="mobile-card-row"><span>进货商</span><strong>{{ row.supplierName || '-' }}</strong></div>
+          <div class="mobile-card-row"><span>规格</span><strong>{{ row.color || '无颜色' }} / {{ row.size || '无尺码' }}</strong></div>
+          <div class="mobile-card-row"><span>数量</span><strong>{{ row.quantity }} 件</strong></div>
+          <div class="mobile-card-row"><span>单价</span><strong>{{ formatMoney(row.purchasePrice) }} 元</strong></div>
+          <div class="mobile-card-row"><span>总金额</span><strong>{{ formatMoney(row.totalAmount) }} 元</strong></div>
+          <div class="mobile-card-row"><span>操作人</span><strong>{{ row.creatorName || '-' }}</strong></div>
+          <div class="mobile-card-row"><span>备注</span><strong>{{ row.remark || '-' }}</strong></div>
+          <div class="mobile-card-row"><span>时间</span><strong>{{ formatDateTime(row.purchaseTime) }}</strong></div>
+          <div class="mobile-card-actions">
+            <el-button type="primary" @click="openEdit(row)">编辑</el-button>
+            <el-button type="danger" @click="handleDelete(row)">删除</el-button>
+          </div>
+        </div>
       </div>
 
       <el-pagination
@@ -90,20 +110,20 @@
           </el-select>
         </el-form-item>
         <el-form-item label="进货数量" prop="quantity">
-          <el-input-number v-model="form.quantity" :min="1" :precision="0" controls-position="right" />
+          <el-input-number v-model="form.quantity" :min="1" :max="999999" :precision="0" controls-position="right" />
         </el-form-item>
         <el-form-item label="进货单价" prop="purchasePrice">
-          <el-input-number v-model="form.purchasePrice" :min="0" :precision="2" :step="1" controls-position="right" />
+          <el-input-number v-model="form.purchasePrice" :min="0" :max="999999" :precision="2" :step="1" controls-position="right" />
         </el-form-item>
         <el-form-item label="进货总金额">
           <el-input :model-value="computedTotalAmount" disabled />
         </el-form-item>
-        <el-form-item label="进货时间" prop="purchaseTime">
+        <el-form-item label="进货日期" prop="purchaseTime">
           <el-date-picker
             v-model="form.purchaseTime"
-            type="datetime"
-            placeholder="请选择进货时间"
-            value-format="YYYY-MM-DD[T]HH:mm:ss"
+            type="date"
+            placeholder="请选择进货日期"
+            value-format="YYYY-MM-DD"
           />
         </el-form-item>
         <el-form-item label="备注">
@@ -111,8 +131,10 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="saving" @click="submitForm">保存</el-button>
+        <div class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" :loading="saving" @click="submitForm">保存</el-button>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -157,8 +179,16 @@ const rules = {
   supplierId: [{ required: true, message: '请选择进货商', trigger: 'change' }],
   productId: [{ required: true, message: '请选择商品', trigger: 'change' }],
   skuId: [{ required: true, message: '请选择商品规格', trigger: 'change' }],
-  quantity: [{ required: true, message: '请输入进货数量', trigger: 'blur' }],
-  purchasePrice: [{ required: true, message: '请输入进货单价', trigger: 'blur' }],
+  quantity: [
+    { required: true, message: '请输入进货数量', trigger: 'blur' },
+    { type: 'number', min: 1, message: '进货数量必须大于0', trigger: 'blur' },
+    { type: 'number', max: 999999, message: '进货数量不能超过999999', trigger: 'blur' }
+  ],
+  purchasePrice: [
+    { required: true, message: '请输入进货单价', trigger: 'blur' },
+    { type: 'number', min: 0, message: '进货单价不能小于0', trigger: 'blur' },
+    { type: 'number', max: 999999, message: '进货单价不能超过999999', trigger: 'blur' }
+  ],
   purchaseTime: [{ required: true, message: '请选择进货时间', trigger: 'change' }]
 }
 
@@ -189,7 +219,7 @@ function getDefaultForm() {
 function getNowValue() {
   const date = new Date()
   const pad = value => String(value).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
 async function fetchData() {
@@ -197,8 +227,8 @@ async function fetchData() {
   try {
     const params = {
       ...searchForm,
-      startTime: dateRange.value?.[0],
-      endTime: dateRange.value?.[1]
+      startTime: dateRange.value?.[0] ? dateRange.value[0] + 'T00:00:00' : undefined,
+      endTime: dateRange.value?.[1] ? dateRange.value[1] + 'T23:59:59' : undefined
     }
     const res = await getPurchaseRecordPage(params)
     tableData.value = res.data.records || []
@@ -210,9 +240,9 @@ async function fetchData() {
 
 async function loadOptions() {
   const [supplierRes, productRes, skuRes] = await Promise.all([
-    getSupplierList({ pageNum: 1, pageSize: 1000 }),
-    getProductList({ pageNum: 1, pageSize: 1000 }),
-    getSkuList({ pageNum: 1, pageSize: 1000 })
+    getSupplierList({ pageNum: 1, pageSize: 99999 }),
+    getProductList({ pageNum: 1, pageSize: 99999 }),
+    getSkuList({ pageNum: 1, pageSize: 99999 })
   ])
   supplierOptions.value = supplierRes.data.records || []
   productOptions.value = productRes.data.records || []
@@ -272,7 +302,8 @@ async function submitForm() {
     const payload = {
       ...form,
       purchasePrice: Number(form.purchasePrice),
-      quantity: Number(form.quantity)
+      quantity: Number(form.quantity),
+      purchaseTime: form.purchaseTime ? form.purchaseTime + 'T00:00:00' : undefined
     }
     if (isEdit.value) {
       await updatePurchaseRecord(payload)
@@ -290,7 +321,7 @@ async function submitForm() {
 }
 
 function handleDelete(row) {
-  ElMessageBox.confirm('确定删除该进货记录吗？删除后会回滚对应库存。', '提示', { type: 'warning' })
+  ElMessageBox.confirm(`确定删除"${row.productName} ${row.color}/${row.size}"的进货记录吗？删除后会回滚对应库存。`, '提示', { type: 'warning' })
     .then(async () => {
       await deletePurchaseRecord(row.id)
       ElMessage.success('删除成功')
@@ -306,17 +337,17 @@ function formatSkuLabel(item) {
 
 function normalizeDateTime(value) {
   if (!value) return getNowValue()
-  return String(value).replace(' ', 'T').slice(0, 19)
+  return String(value).replace(' ', 'T').slice(0, 10)
 }
 
 function formatDateTime(value) {
   if (!value) return '-'
-  return String(value).replace('T', ' ').slice(0, 19)
+  return String(value).replace('T', ' ').slice(0, 10)
 }
 
 function formatMoney(value) {
   const amount = Number(value || 0)
-  return amount.toFixed(2)
+  return amount % 1 === 0 ? amount.toFixed(0) : amount.toFixed(2)
 }
 
 onMounted(async () => {
@@ -359,7 +390,16 @@ onMounted(async () => {
 }
 
 @media screen and (max-width: 768px) {
+  .page {
+    max-width: none;
+    width: 100%;
+  }
+
   .search-form :deep(.el-date-editor) {
+    width: 100%;
+  }
+
+  .toolbar .el-button {
     width: 100%;
   }
 }

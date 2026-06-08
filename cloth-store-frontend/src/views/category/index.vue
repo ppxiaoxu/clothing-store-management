@@ -18,7 +18,7 @@
       <div class="toolbar">
         <el-button type="primary" @click="openAdd">新增分类</el-button>
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap desktop-table">
         <el-table :data="tableData" stripe border v-loading="loading">
           <el-table-column prop="id" label="编号" width="90" />
           <el-table-column prop="name" label="分类名称" min-width="160" />
@@ -33,6 +33,17 @@
             </template>
           </el-table-column>
         </el-table>
+      </div>
+      <div class="mobile-list" v-loading="loading">
+        <div v-for="row in tableData" :key="row.id" class="mobile-record-card">
+          <h3 class="mobile-card-title">{{ row.name }}</h3>
+          <div class="mobile-card-row"><span>上级分类</span><strong>{{ getParentName(row.parentId) }}</strong></div>
+          <div class="mobile-card-row"><span>显示顺序</span><strong>{{ row.sortOrder ?? 0 }}</strong></div>
+          <div class="mobile-card-actions">
+            <el-button type="primary" @click="openEdit(row)">编辑</el-button>
+            <el-button type="danger" @click="handleDelete(row)">删除</el-button>
+          </div>
+        </div>
       </div>
       <el-pagination
         v-model:current-page="searchForm.pageNum"
@@ -49,7 +60,7 @@
     <el-dialog :title="dialogTitle" v-model="dialogVisible" width="520px" @close="resetForm">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="分类名称" prop="name">
-          <el-input v-model="form.name" placeholder="例如：上衣、裤子" />
+          <el-input v-model="form.name" maxlength="30" show-word-limit placeholder="例如：上衣、裤子" />
         </el-form-item>
         <el-form-item label="上级分类">
           <el-select v-model="form.parentId" style="width:100%">
@@ -57,13 +68,15 @@
             <el-option v-for="c in categoryOptions" :key="c.id" :label="c.name" :value="c.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="显示顺序">
-          <el-input-number v-model="form.sortOrder" :min="0" style="width:100%" />
+        <el-form-item label="显示顺序" prop="sortOrder">
+          <el-input-number v-model="form.sortOrder" :min="0" :max="9999" :precision="0" style="width:100%" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitForm">保存</el-button>
+        <div class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitForm">保存</el-button>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -85,7 +98,18 @@ const categoryOptions = ref([])
 
 const searchForm = reactive({ pageNum: 1, pageSize: 10, name: '' })
 const form = reactive({ name: '', parentId: 0, sortOrder: 0 })
-const rules = { name: [{ required: true, message: '请输入分类名称', trigger: 'blur' }] }
+const notPureNumberPattern = /^(?!\d+$).+$/
+const rules = {
+  name: [
+    { required: true, message: '请输入分类名称', trigger: 'blur' },
+    { max: 30, message: '分类名称长度必须为1~30个字符', trigger: 'blur' },
+    { pattern: notPureNumberPattern, message: '分类名称不能是纯数字', trigger: 'blur' }
+  ],
+  sortOrder: [
+    { required: true, message: '请输入显示顺序', trigger: 'blur' },
+    { type: 'number', min: 0, max: 9999, message: '显示顺序不能超过9999', trigger: 'blur' }
+  ]
+}
 
 function getParentName(pid) {
   if (pid === 0) return '顶级分类'
@@ -156,4 +180,15 @@ onMounted(() => {
 .table-card { margin-bottom: 12px; }
 .toolbar { margin-bottom: 12px; }
 .table-wrap { overflow-x: auto; }
+
+@media screen and (max-width: 768px) {
+  .page {
+    max-width: none;
+    width: 100%;
+  }
+
+  .toolbar .el-button {
+    width: 100%;
+  }
+}
 </style>
