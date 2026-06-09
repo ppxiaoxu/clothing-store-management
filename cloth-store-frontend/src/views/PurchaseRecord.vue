@@ -90,13 +90,16 @@
     <el-dialog :title="dialogTitle" v-model="dialogVisible" width="620px" @close="resetForm">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="120px" class="record-form">
         <el-form-item label="进货商" prop="supplierId">
-          <el-select v-model="form.supplierId" placeholder="请选择进货商" filterable>
+          <el-select v-model="form.supplierId" placeholder="请选择进货商" filterable @change="handleSupplierChange">
             <el-option v-for="item in supplierOptions" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="商品" prop="productId">
-          <el-select v-model="form.productId" placeholder="请选择商品" filterable @change="handleProductChange">
-            <el-option v-for="item in productOptions" :key="item.id" :label="item.name" :value="item.id" />
+          <el-select v-model="form.productId" placeholder="请选择商品" filterable :disabled="!form.supplierId" @change="handleProductChange">
+            <el-option v-for="item in filteredProductOptions" :key="item.id" :label="item.name" :value="item.id" />
+            <template #empty>
+              {{ form.supplierId ? '该进货商暂无商品，请先添加商品信息' : '请先选择进货商' }}
+            </template>
           </el-select>
         </el-form-item>
         <el-form-item label="商品规格" prop="skuId">
@@ -192,6 +195,11 @@ const rules = {
   purchaseTime: [{ required: true, message: '请选择进货时间', trigger: 'change' }]
 }
 
+const filteredProductOptions = computed(() => {
+  if (!form.supplierId) return []
+  return productOptions.value.filter(item => item.supplierId === form.supplierId)
+})
+
 const filteredSkuOptions = computed(() => {
   if (!form.productId) return []
   return skuOptions.value.filter(item => item.productId === form.productId)
@@ -282,6 +290,11 @@ function openEdit(row) {
     remark: row.remark || ''
   })
   dialogVisible.value = true
+}
+
+function handleSupplierChange() {
+  form.productId = undefined
+  form.skuId = undefined
 }
 
 function handleProductChange() {
