@@ -9,10 +9,22 @@ const request = axios.create({
 })
 
 const DEFAULT_ERROR_MESSAGE = '操作失败，请检查输入内容'
+const NETWORK_ERROR_MESSAGE = '无法连接后端服务，请确认后端已启动'
+
+function isAuthRequest(config = {}) {
+  const url = config.url || ''
+  return url === '/auth/login' || url === '/auth/register'
+}
 
 function getErrorMessage(error, fallback = DEFAULT_ERROR_MESSAGE) {
   if (error?.response) {
     return error.response.data?.message || fallback
+  }
+  if (error?.code === 'ECONNABORTED') {
+    return '请求超时，请稍后重试'
+  }
+  if (error?.request) {
+    return NETWORK_ERROR_MESSAGE
   }
   return fallback
 }
@@ -26,8 +38,10 @@ function redirectToLogin() {
 
 request.interceptors.request.use((config) => {
   const token = getToken()
-  if (token) {
+  if (token && !isAuthRequest(config)) {
     config.headers.Authorization = `Bearer ${token}`
+  } else if (isAuthRequest(config)) {
+    delete config.headers.Authorization
   }
   return config
 })

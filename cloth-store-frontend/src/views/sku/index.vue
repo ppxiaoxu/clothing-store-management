@@ -77,11 +77,11 @@
     <el-dialog :title="dialogTitle" v-model="dialogVisible" width="520px" @close="resetForm">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="90px">
         <el-form-item label="所属商品" prop="productId">
-          <el-select v-model="form.productId" style="width:100%" placeholder="请选择商品">
+          <el-select v-model="form.productId" style="width:100%" placeholder="请选择商品" filterable>
             <el-option
               v-for="p in productList"
               :key="p.id"
-              :label="p.name + '（货号：' + p.productCode + '）'"
+              :label="formatProductLabel(p)"
               :value="p.id"
             />
           </el-select>
@@ -226,7 +226,38 @@ async function loadProducts() {
   productList.value = res.data.records
 }
 
-function getProductName(id) { return productList.value.find(p => p.id === id)?.name || '' }
+function normalizeText(value) {
+  if (value === null || value === undefined) return ''
+  const text = String(value).trim()
+  if (!text || text.toLowerCase() === 'null' || text.toLowerCase() === 'undefined') return ''
+  return text
+}
+
+function firstText(...values) {
+  for (const value of values) {
+    const text = normalizeText(value)
+    if (text) return text
+  }
+  return ''
+}
+
+function formatProductLabel(item) {
+  const name = normalizeText(item?.name) || '未命名商品'
+  const supplierName = normalizeText(item?.supplierName) || '未设置'
+  const productCode = firstText(item?.productCode, item?.goodsNo, item?.productNo, item?.code)
+  const parts = [`供货商：${supplierName}`]
+
+  if (productCode) {
+    parts.push(`货号：${productCode}`)
+  }
+
+  return `${name}（${parts.join('，')}）`
+}
+
+function getProductName(id) {
+  const product = productList.value.find(p => p.id === id)
+  return product ? formatProductLabel(product) : ''
+}
 
 function handleSearch() { searchForm.pageNum = 1; fetchData() }
 function resetSearch() { searchForm.color = ''; searchForm.size = ''; handleSearch() }

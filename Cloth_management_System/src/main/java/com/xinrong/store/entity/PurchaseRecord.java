@@ -31,6 +31,8 @@ public class PurchaseRecord {
 
     private String remark;
 
+    private Long createdBy;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;

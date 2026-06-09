@@ -29,12 +29,15 @@ public interface PurchaseRecordMapper extends BaseMapper<PurchaseRecord> {
                 pr.total_amount,
                 pr.purchase_time,
                 pr.remark,
+                pr.created_by,
+                u.nickname AS creator_name,
                 pr.create_time,
                 pr.update_time
             FROM purchase_record pr
             LEFT JOIN supplier s ON pr.supplier_id = s.id
             LEFT JOIN product p ON pr.product_id = p.id
             LEFT JOIN sku ON pr.sku_id = sku.id
+            LEFT JOIN sys_user u ON pr.created_by = u.id
             <where>
                 <if test="productName != null and productName != ''">
                     AND p.name LIKE CONCAT('%', #{productName}, '%')
@@ -73,12 +76,15 @@ public interface PurchaseRecordMapper extends BaseMapper<PurchaseRecord> {
                 pr.total_amount,
                 pr.purchase_time,
                 pr.remark,
+                pr.created_by,
+                u.nickname AS creator_name,
                 pr.create_time,
                 pr.update_time
             FROM purchase_record pr
             LEFT JOIN supplier s ON pr.supplier_id = s.id
             LEFT JOIN product p ON pr.product_id = p.id
             LEFT JOIN sku ON pr.sku_id = sku.id
+            LEFT JOIN sys_user u ON pr.created_by = u.id
             WHERE pr.id = #{id}
             """)
     PurchaseRecordVO selectVOById(@Param("id") Long id);

@@ -19,7 +19,14 @@
         <el-button type="primary" @click="openAdd">新增分类</el-button>
       </div>
       <div class="table-wrap desktop-table">
-        <el-table :data="tableData" stripe border v-loading="loading">
+        <el-table
+          :data="tableData"
+          row-key="id"
+          stripe
+          border
+          v-loading="loading"
+          :tree-props="{ children: 'children' }"
+        >
           <el-table-column prop="id" label="编号" width="90" />
           <el-table-column prop="name" label="分类名称" min-width="160" />
           <el-table-column label="上级分类" width="140">
@@ -35,8 +42,8 @@
         </el-table>
       </div>
       <div class="mobile-list" v-loading="loading">
-        <div v-for="row in tableData" :key="row.id" class="mobile-record-card">
-          <h3 class="mobile-card-title">{{ row.name }}</h3>
+        <div v-for="row in mobileData" :key="row.id" class="mobile-record-card">
+          <h3 class="mobile-card-title" :style="{ paddingLeft: `${row.level * 16}px` }">{{ row.name }}</h3>
           <div class="mobile-card-row"><span>上级分类</span><strong>{{ getParentName(row.parentId) }}</strong></div>
           <div class="mobile-card-row"><span>显示顺序</span><strong>{{ row.sortOrder ?? 0 }}</strong></div>
           <div class="mobile-card-actions">
@@ -49,7 +56,8 @@
         v-model:current-page="searchForm.pageNum"
         v-model:page-size="searchForm.pageSize"
         :total="total"
-        :page-sizes="[10, 20, 50]"
+        :page-sizes="[categoryPageSize]"
+        :hide-on-single-page="true"
         layout="total, sizes, prev, pager, next"
         @size-change="fetchData"
         @current-change="fetchData"
@@ -68,7 +76,7 @@
             <el-option v-for="c in categoryOptions" :key="c.id" :label="c.name" :value="c.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="显示顺序" prop="sortOrder">
+        <el-form-item v-if="isEdit" label="显示顺序" prop="sortOrder">
           <el-input-number v-model="form.sortOrder" :min="0" :max="9999" :precision="0" style="width:100%" />
         </el-form-item>
       </el-form>
@@ -96,8 +104,10 @@ const dialogTitle = ref('')
 const isEdit = ref(false)
 const formRef = ref(null)
 const categoryOptions = ref([])
+const mobileData = ref([])
 
-const searchForm = reactive({ pageNum: 1, pageSize: 10, name: '' })
+const categoryPageSize = 1000
+const searchForm = reactive({ pageNum: 1, pageSize: categoryPageSize, name: '' })
 const form = reactive({ name: '', parentId: 0, sortOrder: 0 })
 const notPureNumberPattern = /^(?!\d+$).+$/
 const rules = {
@@ -106,10 +116,6 @@ const rules = {
     { max: 30, message: '分类名称长度必须为1~30个字符', trigger: 'blur' },
     { pattern: notPureNumberPattern, message: '分类名称不能是纯数字', trigger: 'blur' }
   ],
-  sortOrder: [
-    { required: true, message: '请输入显示顺序', trigger: 'blur' },
-    { type: 'number', min: 0, max: 9999, message: '显示顺序不能超过9999', trigger: 'blur' }
-  ]
 }
 
 function getParentName(pid) {
@@ -117,17 +123,59 @@ function getParentName(pid) {
   return categoryOptions.value.find(c => c.id === pid)?.name || ''
 }
 
+function sortCategories(list) {
+  return [...list].sort((a, b) => {
+    const sortA = a.sortOrder ?? 0
+    const sortB = b.sortOrder ?? 0
+    if (sortA !== sortB) return sortA - sortB
+    return (a.id ?? 0) - (b.id ?? 0)
+  })
+}
+
+function buildCategoryTree(list) {
+  const map = new Map()
+  const roots = []
+
+  sortCategories(list).forEach(item => {
+    map.set(item.id, { ...item, children: [] })
+  })
+
+  map.forEach(item => {
+    if (item.parentId && map.has(item.parentId)) {
+      map.get(item.parentId).children.push(item)
+    } else {
+      roots.push(item)
+    }
+  })
+
+  map.forEach(item => {
+    item.children = sortCategories(item.children)
+    if (!item.children.length) delete item.children
+  })
+
+  return sortCategories(roots)
+}
+
+function flattenMobileCategoryTree(list, level = 0) {
+  return list.flatMap(item => {
+    const current = { ...item, level }
+    return item.children ? [current, ...flattenMobileCategoryTree(item.children, level + 1)] : [current]
+  })
+}
+
 async function fetchData() {
   loading.value = true
   try {
     const res = await getCategoryList(searchForm)
-    tableData.value = res.data.records
+    const records = res.data.records || []
+    tableData.value = buildCategoryTree(records)
+    mobileData.value = flattenMobileCategoryTree(tableData.value)
     total.value = res.data.total
   } finally { loading.value = false }
 }
 
 async function loadCategoryOptions() {
-  const res = await getCategoryList({ pageNum: 1, pageSize: 200 })
+  const res = await getCategoryList({ pageNum: 1, pageSize: categoryPageSize })
   categoryOptions.value = res.data.records
 }
 
@@ -142,7 +190,7 @@ function openAdd() {
 
 function openEdit(row) {
   isEdit.value = true; dialogTitle.value = '编辑分类'
-  Object.assign(form, row)
+  Object.assign(form, { id: row.id, name: row.name, parentId: row.parentId, sortOrder: row.sortOrder })
   dialogVisible.value = true
   loadCategoryOptions().then(() => {
     categoryOptions.value = categoryOptions.value.filter(c => c.id !== row.id)
@@ -159,8 +207,8 @@ async function submitForm() {
   if (!valid) return
   saving.value = true
   try {
-    if (isEdit.value) { await updateCategory(form.id, form); ElMessage.success('修改成功') }
-    else { await createCategory(form); ElMessage.success('新增成功') }
+    if (isEdit.value) { await updateCategory(form.id, { name: form.name, parentId: form.parentId, sortOrder: form.sortOrder }); ElMessage.success('修改成功') }
+    else { await createCategory({ name: form.name, parentId: form.parentId }); ElMessage.success('新增成功') }
     dialogVisible.value = false
     fetchData()
   } finally {

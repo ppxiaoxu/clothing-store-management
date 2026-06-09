@@ -1,8 +1,10 @@
 package com.xinrong.store.dto;
 
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -21,11 +23,13 @@ public class PurchaseRecordCreateDTO {
     private Long skuId;
 
     @NotNull(message = "请输入进货数量")
-    @Positive(message = "进货数量必须大于0")
-    private Integer quantity;
+    @Min(value = 1, message = "进货数量必须大于0")
+    @Max(value = 999999, message = "进货数量不能超过999999")
+    private Long quantity;
 
     @NotNull(message = "请输入进货单价")
-    @DecimalMin(value = "0.00", message = "进货单价不能小于0")
+    @DecimalMin(value = "0", message = "进货单价不能小于0")
+    @DecimalMax(value = "999999", message = "进货单价不能超过999999")
     private BigDecimal purchasePrice;
 
     private LocalDateTime purchaseTime;

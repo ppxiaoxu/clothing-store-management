@@ -841,6 +841,10 @@ onUnmounted(() => {
 }
 
 @media screen and (max-width: 768px) {
+  .main-area {
+    padding-top: calc(76px + env(safe-area-inset-top));
+  }
+
   .side-menu {
     width: 82vw !important;
     max-width: 300px;
@@ -860,12 +864,15 @@ onUnmounted(() => {
   }
 
   .top-bar {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 80;
     height: auto;
     min-height: 76px;
-    padding: 12px 14px;
+    box-sizing: border-box;
+    padding: calc(12px + env(safe-area-inset-top)) 14px 12px;
   }
 
   .menu-toggle {

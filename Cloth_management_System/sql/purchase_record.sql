@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS purchase_record (
     total_amount   DECIMAL(10,2) NOT NULL DEFAULT 0.00   COMMENT '进货总金额',
     purchase_time  DATETIME      NOT NULL                COMMENT '进货时间',
     remark         VARCHAR(255)  DEFAULT ''              COMMENT '备注',
+    created_by     BIGINT        DEFAULT NULL            COMMENT '创建人用户ID',
     create_time    DATETIME      DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time    DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (id),

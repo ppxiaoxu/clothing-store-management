@@ -3,6 +3,7 @@ package com.xinrong.store.controller;
 import com.xinrong.store.common.Result;
 import com.xinrong.store.dto.ChangePasswordRequest;
 import com.xinrong.store.dto.LoginRequest;
+import com.xinrong.store.dto.ProfileUpdateRequest;
 import com.xinrong.store.dto.RegisterRequest;
 import com.xinrong.store.service.SysUserService;
 import com.xinrong.store.vo.LoginResponseVO;
@@ -39,6 +40,12 @@ public class AuthController {
     @GetMapping("/me")
     public Result<LoginUserVO> me(@RequestAttribute("userId") Long userId) {
         return Result.success(sysUserService.getLoginUser(userId));
+    }
+
+    @PutMapping("/profile")
+    public Result<LoginUserVO> updateProfile(@RequestAttribute("userId") Long userId,
+                                             @Valid @RequestBody ProfileUpdateRequest request) {
+        return Result.success(sysUserService.updateProfile(userId, request));
     }
 
     @PutMapping("/change-password")

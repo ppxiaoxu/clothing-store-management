@@ -4,11 +4,15 @@ server:
 spring:
   application:
     name: cloth-store
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/clothmgmtsys?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
-    username: root
-    password: 159357
+    url: jdbc:mysql://localhost:3306/clothmgmtsys1?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
@@ -28,5 +32,13 @@ logging:
     com.xinrong.store: debug
 
 jwt:
-  secret: cloth-store-simple-jwt-secret-change-me
+  secret: ${JWT_SECRET:cloth-store-simple-jwt-secret-change-me}
   expire-hours: 24
+
+aliyun:
+  oss:
+    endpoint: ${ALIYUN_OSS_ENDPOINT}
+    bucket-name: ${ALIYUN_OSS_BUCKET}
+    region: ${ALIYUN_OSS_REGION}
+    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID}
+    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET}

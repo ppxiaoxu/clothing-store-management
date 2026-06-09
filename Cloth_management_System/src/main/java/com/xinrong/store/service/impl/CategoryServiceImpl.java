@@ -23,8 +23,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         if (StringUtils.hasText(name)) {
             wrapper.like(Category::getName, name);
         }
-        // 按排序字段升序
-        wrapper.orderByAsc(Category::getSortOrder);
+        // 按父级、排序字段、编号稳定排序
+        wrapper.orderByAsc(Category::getParentId)
+                .orderByAsc(Category::getSortOrder)
+                .orderByAsc(Category::getId);
         return this.page(page, wrapper);
     }
 }

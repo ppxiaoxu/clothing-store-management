@@ -12,6 +12,10 @@ public class LoginUserVO {
 
     private String nickname;
 
+    private String phone;
+
+    private String avatar;
+
     private String role;
 
     public static LoginUserVO from(SysUser user) {
@@ -19,6 +23,8 @@ public class LoginUserVO {
         vo.setId(user.getId());
         vo.setUsername(user.getUsername());
         vo.setNickname(user.getNickname());
+        vo.setPhone(user.getPhone());
+        vo.setAvatar(user.getAvatar());
         vo.setRole(user.getRole());
         return vo;
     }

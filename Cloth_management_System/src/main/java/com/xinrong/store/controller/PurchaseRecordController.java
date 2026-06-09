@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,8 +32,9 @@ public class PurchaseRecordController {
     }
 
     @PostMapping
-    public Result<PurchaseRecordVO> create(@Valid @RequestBody PurchaseRecordCreateDTO dto) {
-        return Result.success(purchaseRecordService.createRecord(dto));
+    public Result<PurchaseRecordVO> create(@Valid @RequestBody PurchaseRecordCreateDTO dto,
+                                           @RequestAttribute("userId") Long userId) {
+        return Result.success(purchaseRecordService.createRecord(dto, userId));
     }
 
     @GetMapping("/page")

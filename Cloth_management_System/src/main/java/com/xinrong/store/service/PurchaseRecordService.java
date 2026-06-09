@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 public interface PurchaseRecordService extends IService<PurchaseRecord> {
 
-    PurchaseRecordVO createRecord(PurchaseRecordCreateDTO dto);
+    PurchaseRecordVO createRecord(PurchaseRecordCreateDTO dto, Long userId);
 
     PurchaseRecordVO updateRecord(PurchaseRecordUpdateDTO dto);
 

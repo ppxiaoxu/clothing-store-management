@@ -20,6 +20,10 @@ public class SysUser {
 
     private String nickname;
 
+    private String phone;
+
+    private String avatar;
+
     private String role;
 
     private Integer status;

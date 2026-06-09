@@ -34,6 +34,10 @@ public class PurchaseRecordVO {
 
     private String remark;
 
+    private Long createdBy;
+
+    private String creatorName;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
