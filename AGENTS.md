@@ -6,7 +6,7 @@
 - Read the relevant Controller, Service, Mapper and neighboring UI before changing a behavior. Reuse `Result`, DTO validation and the global exception handler.
 - Inventory changes belong in the shared `StockService`. Consider the business record, SKU quantity and stock record together; do not bypass this boundary with a second stock update.
 - Keep each change within the user's task. Preserve existing local changes; do not stage all files, publish credentials, or include unrelated business files. Commit/push only within the user's current authorization; do not request approval again when it was already given.
-- Report what was actually run and its result. A frontend build or `contextLoads` is not evidence that inventory, permissions or concurrency scenarios passed. Do not invent earlier skill usage or test history.
+- Record verification commands, observed results and the behavior each check covers. Use business acceptance scenarios for inventory, permissions and concurrency, alongside builds and application startup checks.
 
 ## Agent skills
 

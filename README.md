@@ -1,6 +1,6 @@
 # 🧸 童装店记货系统
 
-> AI Coding 补充实践：已引入 Matt Pocock 的六项工程 Skills 及依赖，包含协作约定、源码复盘、规格与任务草案。见 [使用与学习说明](docs/ai-coding/README.md)。技能为本次后续接入，业务测试完成情况在说明中单独列出。
+> AI Coding 与工程化实践：结合 Matt Pocock 的六项工程 Skills，组织需求澄清、规格、任务拆分、测试、审查与排障。见 [使用与学习说明](docs/ai-coding/README.md)。
 
 > 一个基于 **Spring Boot + Vue3** 开发的童装店进销存管理系统
 > 从家里童装店真实业务场景出发，让记货、进货、销售、库存管理更加简单高效 ✨
